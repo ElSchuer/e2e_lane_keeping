@@ -13,6 +13,8 @@ class DataHandler:
 
         self.data = self.get_meta_data_from_file(self.data_desc_file)
 
+        print("Complete Data : " + str(len(self.data)))
+
         self.train_data = []
         self.val_data = []
 
@@ -54,9 +56,9 @@ class DataHandler:
 
     def get_image(self, filename):
         image = scipy.misc.imresize(scipy.misc.imread(filename)[25:135], [66, 200])
-        #image = cv2.cvtColor(image, cv2.COLOR_RGB2YUV)
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2YUV)
 
-        #return (image / 255.0)
+        return (image / 255.0)
 
         return image
 
@@ -109,6 +111,9 @@ class DataHandler:
         if val_split < 1.0:
             self.train_data = self.data[0:int((1 - val_split) * len(self.data))]
             self.val_data = self.data[int((1 - val_split) * len(self.data)):]
+
+            print("Train Data Samples : " + str(len(self.train_data)))
+            print("Val Data Samples : " + str(len(self.val_data)))
         else:
             print("Invalid validation split. Split has to be < 1")
 
