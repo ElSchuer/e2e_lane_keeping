@@ -7,6 +7,7 @@ import csv
 import cv2
 import numpy as np
 import scipy.misc
+import os
 
 def flip_horizontal(image, angle):
     return cv2.flip(image, flipCode=1), -angle
@@ -48,36 +49,52 @@ def random_shades(image):
 def get_image(filename):
     return scipy.misc.imread(filename)
 
+def save_augmented_data(augmented_data, path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    with open(path + '/' + 'augmented_log.csv', mode='w') as new_log_file:
+        for dataset in augmented_data:
+            new_img = dataset[0]
+            new_angle = dataset[1]
+            new_img_path = path + '/' + dataset[2]
+
+            writer = csv.writer(new_log_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            writer.writerow([new_img_path, '', '', str(new_angle)])
+
+            scipy.misc.imsave(new_img_path, new_img)
+
+
 def augment_images(data_dir, data_desc_file):
+    augmented_data = []
+
     with open(data_dir + '/' + data_desc_file, 'r') as csvFile:
         reader = csv.reader(csvFile, delimiter=',')
 
-        augmented_data = []
-
-        rowNum = 0
         for row in reader:
+            img_name = row[0]
+            image = get_image(data_dir + '/' + img_name)
+            angle = float(row[3])
+            augmented_data.append([image, angle, img_name])
 
-            if rowNum == 0:
-                header = row
-            else:
-                image = get_image(data_dir + '/' + row[0])
-                angle = float(row[3])
+            # flip image horizontal
+            flip_img, flip_angle = flip_horizontal(image, angle)
+            augmented_data.append([flip_img, flip_angle, 'flip_'+img_name])
 
-                # flip image horizontal
-                flip_img, flip_angle = flip_horizontal(image, angle)
-                augmented_data.append([flip_img, flip_angle])
+            # manipulate brightness
+            bright_img = manipulate_brightness(image)
+            augmented_data.append([bright_img, angle, 'bright_'+img_name])
 
-                # manipulate brightness
-                bright_img = manipulate_brightness(image)
-                augmented_data.append([bright_img, angle])
-
-                # apply random shades
-                shade_img = random_shades(image)
-                augmented_data.append([shade_img, angle])
-
-            rowNum = rowNum + 1
+            # apply random shades
+            shade_img = random_shades(image)
+            augmented_data.append([shade_img, angle, 'shade_'+img_name])
 
         print(len(augmented_data))
+
+    new_path = data_dir + '/' + 'augmented_data'
+
+    save_augmented_data(augmented_data, new_path)
+
 
 if __name__ == '__main__':
     data_path = './data'
