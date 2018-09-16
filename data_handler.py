@@ -13,6 +13,7 @@ class DataHandler:
         self.is_full_file_path = contains_full_path
 
         self.data = self.get_meta_data_from_file(self.data_desc_file)
+        shuffle(self.data)
 
         print("Complete Data : " + str(len(self.data)))
 
