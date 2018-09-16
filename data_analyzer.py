@@ -17,7 +17,7 @@ class DataAnalyzer:
 
 
 if __name__ == '__main__':
-    data_handler = data_handler.DataHandler(data_dir='./data', data_description_file='driving_log.csv')
+    data_handler = data_handler.DataHandler(data_dir='./data/augmented_data', data_description_file='augmented_log.csv', contains_full_path = True)
 
     data_analyzer = DataAnalyzer()
     data_analyzer.showDataDistribution(data_handler.get_data_y())

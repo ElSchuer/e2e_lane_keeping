@@ -54,15 +54,24 @@ def save_augmented_data(augmented_data, path):
         os.makedirs(path)
 
     with open(path + '/' + 'augmented_log.csv', mode='w') as new_log_file:
+        s_count = 0
         for dataset in augmented_data:
             new_img = dataset[0]
             new_angle = dataset[1]
-            new_img_path = path + '/' + dataset[2]
+            new_img_path = path + '/' +  dataset[2]
 
             writer = csv.writer(new_log_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             writer.writerow([new_img_path, '', '', str(new_angle)])
 
             scipy.misc.imsave(new_img_path, new_img)
+
+            s_count = s_count + 1
+
+            print("Saved " + str(s_count) + " of " + str(len(augmented_data)))
+
+
+
+
 
 
 def augment_images(data_dir, data_desc_file):
@@ -77,19 +86,19 @@ def augment_images(data_dir, data_desc_file):
             angle = float(row[3])
             augmented_data.append([image, angle, img_name])
 
-            # flip image horizontal
-            flip_img, flip_angle = flip_horizontal(image, angle)
-            augmented_data.append([flip_img, flip_angle, 'flip_'+img_name])
+            if angle != 0:
+                # flip image horizontal
+                flip_img, flip_angle = flip_horizontal(image, angle)
+                augmented_data.append([flip_img, flip_angle, img_name[:len(img_name)-4] + "_flip.jpg"])
 
-            # manipulate brightness
-            bright_img = manipulate_brightness(image)
-            augmented_data.append([bright_img, angle, 'bright_'+img_name])
+                # manipulate brightness
+                bright_img = manipulate_brightness(image)
+                augmented_data.append([bright_img, angle, img_name[:len(img_name)-4] + "_bright.jpg"])
 
-            # apply random shades
-            shade_img = random_shades(image)
-            augmented_data.append([shade_img, angle, 'shade_'+img_name])
+                # apply random shades
+                shade_img = random_shades(image)
+                augmented_data.append([shade_img, angle, img_name[:len(img_name)-4] + "_shade.jpg"])
 
-        print(len(augmented_data))
 
     new_path = data_dir + '/' + 'augmented_data'
 

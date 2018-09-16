@@ -7,7 +7,7 @@ import data_handler
 import os
 
 class ModelTrainer:
-    def __init__(self, epochs = 30, val_split=0.2, L2_norm_const = 0.001, batch_size=100, logs_path='./logs', model_save_path='./save', data_path='./data', data_desc_file='driving_log.csv'):
+    def __init__(self, epochs = 30, val_split=0.2, L2_norm_const = 0.001, batch_size=100, logs_path='./logs', model_save_path='./save', data_path='./data', data_desc_file='driving_log.csv', contains_full_path=False):
         self.epochs = epochs
         self.val_split = val_split
         self.L2_norm_const = L2_norm_const
@@ -22,7 +22,7 @@ class ModelTrainer:
         # op to write logs to Tensorboard
         self.summary_writer = tf.summary.FileWriter(logs_path, graph=tf.get_default_graph())
 
-        self.data_handler = data_handler.DataHandler(data_path, data_desc_file)
+        self.data_handler = data_handler.DataHandler(data_path, data_desc_file, contains_full_path)
 
         self.sess = tf.InteractiveSession()
 
@@ -79,6 +79,6 @@ class ModelTrainer:
 
 
 if __name__ == '__main__':
-    model_trainer = ModelTrainer(epochs=40)
+    model_trainer = ModelTrainer(epochs=30, data_path='./data/augmented_data', data_desc_file='augmented_log.csv', contains_full_path = True)
     model_trainer.train_model()
 

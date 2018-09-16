@@ -5,11 +5,13 @@ from cv_bridge import CvBridge
 
 class RosDataWrapper:
 
-    def __init__(self, bagfiles = []):
+    def __init__(self, bagfiles = [], show_images = False):
         self.bagfiles = bagfiles
         self.bridge = CvBridge()
 
-    def readRosBagFile(self):
+        self.show_images = show_images
+
+    def read_ros_bag_file(self):
 
         for bagfile in self.bagfiles:
             bag = rosbag.Bag(bagfile,'r')
@@ -21,8 +23,12 @@ class RosDataWrapper:
                 if topic == '/camera/image_raw':
                     img = self.bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
 
-                    cv2.imshow('test', img)
-                    cv2.waitKey(1)
+                    if self.show_images:
+                        cv2.imshow('test', img)
+                        cv2.waitKey(1)
+
+                if topic == '/CarUpdate':
+                    print(topic)
 
             print(bagfile)
 
@@ -30,7 +36,7 @@ class RosDataWrapper:
 
 if __name__ == '__main__':
 
-    files = ['/home/schuerlars/data/ros_data/Testfahrt 18_12_2017/2017-12-18-16-37-54.bag']
-    ros_data_handler = RosDataWrapper(files)
+    files = ['/home/schuerlars/git/e2e_lane_keeping/velox_data/2013-01-01-01-47-52.bag']
+    ros_data_handler = RosDataWrapper(files , show_images=True)
 
-    ros_data_handler.readRosBagFile()
+    ros_data_handler.read_ros_bag_file()

@@ -7,9 +7,10 @@ import scipy.misc
 
 class DataHandler:
 
-    def __init__(self,data_dir,  data_description_file):
+    def __init__(self,data_dir,  data_description_file, contains_full_path = False):
         self.data_desc_file = data_description_file
         self.data_dir = data_dir
+        self.is_full_file_path = contains_full_path
 
         self.data = self.get_meta_data_from_file(self.data_desc_file)
 
@@ -41,16 +42,16 @@ class DataHandler:
         with open(self.data_dir + '/' + self.data_desc_file, 'r') as csvFile:
             reader = csv.reader(csvFile, delimiter=',')
 
-            rowNum = 0
             for row in reader:
 
-                if rowNum == 0:
-                    header = row
+                if self.is_full_file_path:
+                    image = self.get_image(row[0])
                 else:
                     image = self.get_image(self.data_dir + '/' + row[0])
-                    angle = row[3]
-                    data.append([image, angle])
-                rowNum = rowNum + 1
+
+                angle = row[3]
+                data.append([image, angle])
+
 
         return data
 
