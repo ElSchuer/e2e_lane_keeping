@@ -41,6 +41,9 @@ class ModelTrainer:
 
         train_data, val_data = self.data_handler.generate_data_splits(self.val_split)
 
+        iterations = []
+        loss_values = []
+
         for epoch in range(self.epochs):
             print("Epoch " + str(epoch))
 
@@ -61,6 +64,10 @@ class ModelTrainer:
                                           cnn_model.keep_prob: 1.0})
                     print("Epoch: %d, Step: %d, Loss: %g" % (epoch, epoch * self.batch_size + iteration, loss_value))
 
+                    loss_values.append(loss_value)
+                    iterations.append(epoch * self.batch_size + iteration)
+
+
                 # write logs at every iteration
                 summary = merged_summary_op.eval(feed_dict={cnn_model.x: train_data_batch_x,
                                           cnn_model.y_in: np.expand_dims(train_data_batch_y, axis=1), cnn_model.keep_prob: 1.0})
@@ -68,6 +75,9 @@ class ModelTrainer:
 
 
             self.save_model_iteration()
+
+
+    def plot_loss_values(self,):
 
     def save_model_iteration(self):
         if not os.path.exists(self.model_save_path):
