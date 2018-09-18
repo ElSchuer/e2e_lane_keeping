@@ -9,3 +9,6 @@ The solution is based on the NVIDIA End-to-End Autonomous Driving paper (https:/
 The udacity autonomous driving simulator (https://github.com/udacity/self-driving-car-sim) is used for prototyping and simulation of the method. 
 
 ## Dependencies
+
+* python version > 3
+* tensorflow
