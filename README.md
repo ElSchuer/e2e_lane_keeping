@@ -1,4 +1,4 @@
-# e2e_lane_keeping
+# Model scale End-to-End Lane Keeping
 
 ## Overview
 
