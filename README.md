@@ -1,4 +1,4 @@
-# Model scale End-to-End Lane Keeping
+# Model Scale End-to-End Lane Keeping
 
 ## Overview
 
