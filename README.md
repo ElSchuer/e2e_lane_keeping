@@ -12,3 +12,8 @@ The udacity autonomous driving simulator (https://github.com/udacity/self-drivin
 
 * python version > 3
 * tensorflow
+* numpy
+* cv2
+* scipy
+* matplotlib
+* socketio
