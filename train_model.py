@@ -3,7 +3,6 @@ import numpy as np
 from tensorflow.core.protobuf import saver_pb2
 import cnn_model
 import data_handler
-
 import os
 
 class ModelTrainer:
@@ -77,7 +76,7 @@ class ModelTrainer:
             self.save_model_iteration()
 
 
-    def plot_loss_values(self,):
+    #def plot_loss_values(self,):
 
     def save_model_iteration(self):
         if not os.path.exists(self.model_save_path):
@@ -89,6 +88,8 @@ class ModelTrainer:
 
 
 if __name__ == '__main__':
-    model_trainer = ModelTrainer(epochs=30, data_path='./data/augmented_data', data_desc_file='augmented_log.csv', contains_full_path = True)
-    model_trainer.train_model()
+    os.system("shutdown now -h")
+
+    #model_trainer = ModelTrainer(epochs=30, data_path='./data/augmented_data', data_desc_file='augmented_log.csv', contains_full_path = True)
+    #model_trainer.train_model()
 
