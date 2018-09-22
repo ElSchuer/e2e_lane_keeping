@@ -5,6 +5,12 @@ import numpy as np
 from random import shuffle
 import scipy.misc
 
+class VehicleSpec:
+
+    def __init__(self, angle_bounds, image_crop_vert):
+        self.angle_bounds = angle_bounds
+        self.image_crop_vert = image_crop_vert
+
 class DataHandler:
 
     def __init__(self,data_dir,  data_description_file, contains_full_path = False):

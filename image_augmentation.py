@@ -71,9 +71,6 @@ def save_augmented_data(augmented_data, path):
 
 
 
-
-
-
 def augment_images(data_dir, data_desc_file):
     augmented_data = []
 
