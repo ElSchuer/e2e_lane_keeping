@@ -103,6 +103,6 @@ def augment_images(data_dir, data_desc_file):
 
 
 if __name__ == '__main__':
-    data_path = './data'
-    data_desc_file = 'driving_log.csv'
+    data_path = './velox_data_path'
+    data_desc_file = 'augmented_log.csv'
     augment_images(data_path, data_desc_file)

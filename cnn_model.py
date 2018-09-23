@@ -3,7 +3,7 @@ import scipy
 
 input_width = 200
 input_height = 66
-input_dim = 3
+input_dim = 1
 
 def create_weight_var(shape):
     initial = tf.truncated_normal(shape, stddev=0.1)
@@ -27,7 +27,7 @@ x_img = x
 # Convolution Layer 1-5
 #######################################
 k_num_1 = 24
-W_conv1 = create_weight_var([5, 5, 3, k_num_1])
+W_conv1 = create_weight_var([5, 5, input_dim, k_num_1])
 b_conv1 = create_bias_var([k_num_1])
 conv1 = tf.nn.relu(conv2d(x_img, W_conv1, 2) + b_conv1)
 

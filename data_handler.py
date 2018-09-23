@@ -7,16 +7,19 @@ import scipy.misc
 
 class VehicleSpec:
 
-    def __init__(self, angle_bounds, image_crop_vert):
-        self.angle_bounds = angle_bounds
+    def __init__(self, angle_norm, image_crop_vert):
+        self.angle_norm = angle_norm
         self.image_crop_vert = image_crop_vert
 
 class DataHandler:
 
-    def __init__(self,data_dir,  data_description_file, contains_full_path = False):
+    def __init__(self,data_dir,  data_description_file, vehicle_spec ,contains_full_path = False, convert_image = True, image_channels=3):
         self.data_desc_file = data_description_file
         self.data_dir = data_dir
         self.is_full_file_path = contains_full_path
+        self.vehicle_spec = vehicle_spec
+        self.convert_image = convert_image
+        self.image_channels = image_channels
 
         self.data = self.get_meta_data_from_file(self.data_desc_file)
         shuffle(self.data)
@@ -44,6 +47,11 @@ class DataHandler:
 
         return np.array(y_data)
 
+    def add_axis(self, data):
+        return np.array(data).reshape(
+            [np.array(data).shape[0],
+             np.array(data).shape[1], 1])
+
     def get_meta_data_from_file(self, data_desc_file):
         data = []
         with open(self.data_dir + '/' + self.data_desc_file, 'r') as csvFile:
@@ -56,15 +64,20 @@ class DataHandler:
                 else:
                     image = self.get_image(self.data_dir + '/' + row[0])
 
-                angle = row[3]
+                if self.image_channels == 1:
+                    image = self.add_axis(image)
+
+                angle = float(row[3])/self.vehicle_spec.angle_norm
                 data.append([image, angle])
 
 
         return data
 
     def get_image(self, filename):
-        image = scipy.misc.imresize(scipy.misc.imread(filename)[25:135], [66, 200])
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2YUV)
+        image = scipy.misc.imresize(scipy.misc.imread(filename)[self.vehicle_spec.image_crop_vert[0]:self.vehicle_spec.image_crop_vert[1]], [66, 200])
+
+        if self.convert_image:
+            image = cv2.cvtColor(image, cv2.COLOR_RGB2YUV)
 
         return (image / 255.0)
 
