@@ -15,7 +15,12 @@ def flip_horizontal(image, angle):
 def manipulate_brightness(image, min_rand_val = 0.2, max_rand_val = 0.8):
     r = np.random.uniform(min_rand_val, max_rand_val)
     img = image.astype(np.float32)
-    img[:,:,:] *= r
+
+    if len(img.shape) == 2:
+        img[:, :] *= r
+    if len(img.shape) == 3:
+        img[:, :, :] *= r
+
     np.clip(img, 0., 255.)
     return img.astype(np.uint8)
 
@@ -53,7 +58,7 @@ def save_augmented_data(augmented_data, path):
     if not os.path.exists(path):
         os.makedirs(path)
 
-    with open(path + '/' + 'augmented_log.csv', mode='w') as new_log_file:
+    with open(path + '/' + 'augmented_log.csv', mode='w+') as new_log_file:
         s_count = 0
         for dataset in augmented_data:
             new_img = dataset[0]

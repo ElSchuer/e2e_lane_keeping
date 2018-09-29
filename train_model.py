@@ -94,7 +94,7 @@ if __name__ == '__main__':
 
     train_simulation = False
     shutdown_on_finish = False
-    analyze_data = False
+    analyze_data = True
 
     if train_simulation:
         vec_spec = data_handler.VehicleSpec(angle_norm=1, image_crop_vert=[25,135])
@@ -104,7 +104,7 @@ if __name__ == '__main__':
         model_name = 'sim_model.ckpt'
     else:
         vec_spec = data_handler.VehicleSpec(angle_norm=30, image_crop_vert=[220,480])
-        data_path = './velox_data_path/'
+        data_path = './data/velox_data_augmented/'
         desc_file = 'augmented_log.csv'
         contains_full_path = False
         model_name = 'velox_model.ckpt'
@@ -118,9 +118,7 @@ if __name__ == '__main__':
         data_analyzer.showDataDistribution(data_handler.get_data_y())
         data_analyzer.print_samples_not_equal_zero(data_handler.get_data_y())
 
-    print(np.array(data_handler.get_data_x()).shape)
-
-    model_trainer = ModelTrainer(epochs=30, data_handler=data_handler, model_name=model_name)
+    model_trainer = ModelTrainer(epochs=15, data_handler=data_handler, model_name=model_name)
     model_trainer.train_model()
 
     if shutdown_on_finish:
