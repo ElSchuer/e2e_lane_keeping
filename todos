@@ -1,3 +1,4 @@
-- Check performance without and with shuffeling of datasets
 - also augment data with 0 steering angle?
 - add automatic training review after completion (telegram)
+- add training time
+- add resume training at checkpoint
