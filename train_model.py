@@ -75,11 +75,22 @@ class ModelTrainer:
                                           cnn_model.y_in: np.expand_dims(train_data_batch_y, axis=1), cnn_model.keep_prob: 1.0})
                 self.summary_writer.add_summary(summary, epoch * len(train_data) + iteration)
 
-
+            self.val_model()
             self.save_model_iteration()
 
+    def val_model(self):
+        total_loss = 0
+        split_iterations = 10
 
-    #def plot_loss_values(self,):
+        self.data_handler.val_iterations = 0
+
+        for i in range(split_iterations):
+            loss = tf.square(tf.subtract(cnn_model.y_in, cnn_model.y))
+            val_batch_x, val_batch_y = self.data_handler.get_val_batch(int(len(self.data_handler.val_data)/split_iterations))
+
+            total_loss += np.mean(loss.eval(feed_dict={cnn_model.x: val_batch_x, cnn_model.y_in: np.expand_dims(val_batch_y, axis=1), cnn_model.keep_prob: 1.0}))
+
+        print("Error Value after training : " + str(total_loss / split_iterations))
 
     def save_model_iteration(self):
         if not os.path.exists(self.model_save_path):
@@ -118,7 +129,7 @@ if __name__ == '__main__':
         data_analyzer.showDataDistribution(data_handler.get_data_y())
         data_analyzer.print_samples_not_equal_zero(data_handler.get_data_y())
 
-    model_trainer = ModelTrainer(epochs=15, data_handler=data_handler, model_name=model_name)
+    model_trainer = ModelTrainer(epochs=12, data_handler=data_handler, model_name=model_name)
     model_trainer.train_model()
 
     if shutdown_on_finish:
