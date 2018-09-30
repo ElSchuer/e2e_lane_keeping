@@ -2,3 +2,5 @@
 - add automatic training review after completion (telegram)
 - add training time
 - add resume training at checkpoint
+- seaborn for plots
+- automatic training parameter optimization
