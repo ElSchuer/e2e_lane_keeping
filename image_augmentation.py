@@ -12,7 +12,7 @@ import os
 def flip_horizontal(image, angle):
     return cv2.flip(image, flipCode=1), -angle
 
-def manipulate_brightness(image, min_rand_val = 0.2, max_rand_val = 0.8):
+def manipulate_brightness(image, min_rand_val = 0.2,  max_rand_val = 0.8):
     r = np.random.uniform(min_rand_val, max_rand_val)
     img = image.astype(np.float32)
 
@@ -30,7 +30,6 @@ def sort_values(val_1, val_2):
         return val_2, val_1
     else:
         return val_1, val_2
-
 
 
 def random_shades(image):
@@ -55,10 +54,13 @@ def get_image(filename):
     return scipy.misc.imread(filename)
 
 def save_augmented_data(augmented_data, path):
+
+    print("Saving Augmented data in " + path)
+
     if not os.path.exists(path):
         os.makedirs(path)
 
-    with open(path + '/' + 'augmented_log.csv', mode='w+') as new_log_file:
+    with open(path + '/' + 'augmented_log.csv', mode='a+') as new_log_file:
         s_count = 0
         for dataset in augmented_data:
             new_img = dataset[0]
@@ -79,10 +81,15 @@ def save_augmented_data(augmented_data, path):
 def augment_images(data_dir, data_desc_file):
     augmented_data = []
 
+    new_path = data_dir + '/' + 'augmented_data'
+
     with open(data_dir + '/' + data_desc_file, 'r') as csvFile:
         reader = csv.reader(csvFile, delimiter=',')
 
         for row in reader:
+
+            print("Processing Row + " + str(row))
+
             img_name = row[0]
             image = get_image(data_dir + '/' + img_name)
             angle = float(row[3])
@@ -94,20 +101,22 @@ def augment_images(data_dir, data_desc_file):
                 augmented_data.append([flip_img, flip_angle, img_name[:len(img_name)-4] + "_flip.jpg"])
 
                 # manipulate brightness
-                bright_img = manipulate_brightness(image)
+                dark_img = manipulate_brightness(image, min_rand_val=0.2, max_rand_val=0.8)
+                augmented_data.append([dark_img, angle, img_name[:len(img_name)-4] + "_dark.jpg"])
+
+                bright_img = manipulate_brightness(image, min_rand_val=1.1, max_rand_val=1.9)
                 augmented_data.append([bright_img, angle, img_name[:len(img_name)-4] + "_bright.jpg"])
 
                 # apply random shades
                 shade_img = random_shades(image)
                 augmented_data.append([shade_img, angle, img_name[:len(img_name)-4] + "_shade.jpg"])
 
+                save_augmented_data(augmented_data, new_path)
 
-    new_path = data_dir + '/' + 'augmented_data'
-
-    save_augmented_data(augmented_data, new_path)
+                augmented_data = []
 
 
 if __name__ == '__main__':
-    data_path = './velox_data_path'
+    data_path = './data/velox_data_path'
     data_desc_file = 'augmented_log.csv'
     augment_images(data_path, data_desc_file)
