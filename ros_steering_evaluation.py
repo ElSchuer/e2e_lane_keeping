@@ -12,6 +12,8 @@ class LaneKeepingValidator:
         self.gt_angle = 0
         self.pred_angle = 0
         self.error_values = []
+        self.pos_errors = []
+        self.neg_errors = []
 
         self.plot_error_values = plot_error_values
         self.show_image = show_image
@@ -51,8 +53,17 @@ class LaneKeepingValidator:
         print("Ground Truth Angle : " + str(self.gt_angle))
 
         error = np.sqrt(np.power(self.pred_angle-self.gt_angle, 2))
+
+        if np.sign(self.gt_angle) < 0:
+            self.neg_errors.append(error)
+        elif np.sign(self.gt_angle) > 0:
+            self.pos_errors.append(error)
+
         self.error_values.append(error)
         print("Error Value : " + str(error))
+        print("Mean Error : " + str(np.mean(self.error_values)))
+        print("Mean Neg Error : " + str(np.mean(self.neg_errors)))
+        print("Mean Pos Error : " + str(np.mean(self.pos_errors)))
 
         # Plotting the error values
         if self.plot_error_values:
