@@ -4,3 +4,4 @@
 - add resume training at checkpoint
 - seaborn for plots
 - automatic training parameter optimization
+- replace pip tensorflow with conda tensorflow

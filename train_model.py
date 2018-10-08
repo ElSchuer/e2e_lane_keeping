@@ -5,6 +5,8 @@ import cnn_model
 import data_handler
 import data_analyzer
 import os
+import time
+import matplotlib.pyplot as plt
 
 
 class ModelTrainer:
@@ -17,6 +19,8 @@ class ModelTrainer:
         self.logs_path = logs_path
         self.model_save_path = model_save_path
         self.model_name = model_name
+
+        self.val_errors = []
 
         # initialize saver
         self.saver = tf.train.Saver(write_version=saver_pb2.SaverDef.V1)
@@ -45,6 +49,8 @@ class ModelTrainer:
 
         iterations = []
         loss_values = []
+
+        start_time = time.time()
 
         for epoch in range(self.epochs):
             print("Epoch " + str(epoch))
@@ -78,6 +84,20 @@ class ModelTrainer:
             self.val_model()
             self.save_model_iteration()
 
+        training_time = time.time() - start_time
+
+        print("Total training time : " + str(training_time))
+
+        self.plot_epoch_errors()
+
+    def plot_epoch_errors(self):
+        plt.plot(range(len(self.val_errors)), self.val_errors, 'C1')
+        plt.xlabel('Epoch Number')
+        plt.ylabel('Validation Error')
+        plt.show()
+        plt.savefig('myfig')
+
+
     def val_model(self):
         total_loss = 0
         split_iterations = 10
@@ -89,6 +109,8 @@ class ModelTrainer:
             val_batch_x, val_batch_y = self.data_handler.get_val_batch(int(len(self.data_handler.val_data)/split_iterations))
 
             total_loss += np.mean(loss.eval(feed_dict={cnn_model.x: val_batch_x, cnn_model.y_in: np.expand_dims(val_batch_y, axis=1), cnn_model.keep_prob: 1.0}))
+
+        self.val_errors.append(total_loss/split_iterations)
 
         print("Error Value after training : " + str(total_loss / split_iterations))
 
@@ -104,7 +126,7 @@ class ModelTrainer:
 if __name__ == '__main__':
 
     train_simulation = False
-    shutdown_on_finish = False
+    shutdown_on_finish = True
     analyze_data = True
 
     if train_simulation:
@@ -129,7 +151,7 @@ if __name__ == '__main__':
         data_analyzer.showDataDistribution(data_handler.get_data_y())
         data_analyzer.print_samples_not_equal_zero(data_handler.get_data_y())
 
-    model_trainer = ModelTrainer(epochs=12, data_handler=data_handler, model_name=model_name)
+    model_trainer = ModelTrainer(epochs=30, data_handler=data_handler, model_name=model_name)
     model_trainer.train_model()
 
     if shutdown_on_finish:

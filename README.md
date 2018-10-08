@@ -17,6 +17,7 @@ The udacity autonomous driving simulator (https://github.com/udacity/self-drivin
 * scipy
 * matplotlib
 * socketio
+* ros (melodic)
 
 
 ## Usage
