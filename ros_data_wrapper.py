@@ -5,6 +5,7 @@ import os
 import csv
 from cv_bridge import CvBridge
 from messages.msg import CarControlMessage
+from std_msgs.msg import Float32
 import scipy.misc
 
 class RosDataWrapper:
@@ -25,7 +26,7 @@ class RosDataWrapper:
             os.makedirs(self.output_path + 'IMG')
 
     def save_data(self, image, speed, angle, img_name):
-        with open(self.output_path + 'augmented_log.csv', mode='a+') as new_log_file:
+        with open(self.output_path + 'data_labels.csv', mode='a+') as new_log_file:
             writer = csv.writer(new_log_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             writer.writerow([img_name, '', '', str(angle), str(speed)])
 
@@ -38,17 +39,16 @@ class RosDataWrapper:
             img_count = 0
             is_new_img = False
             is_new_angle = False
+            is_new_speed = False
 
             for topic, msg, t in bag.read_messages():
-
-                print(t, topic)
 
                 if topic == '/camera/image_raw':
                     img = self.bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
                     is_new_img = True
 
                     if self.show_images:
-                        cv2.imshow('test', img)
+                        cv2.imshow('image', img)
                         cv2.waitKey(1)
 
                 if topic == '/CarUpdate':
@@ -56,11 +56,20 @@ class RosDataWrapper:
                     speed = msg.speed
                     is_new_angle = True
 
-                if is_new_angle and is_new_img:
+                if topic == '/ECU/SteeringAngle':
+                    angle = msg.data
+                    is_new_angle = True
+
+                if topic == '/ECU/Speed':
+                    speed = msg.data
+                    is_new_speed = True
+
+                if is_new_angle and is_new_img and is_new_speed:
                     self.save_data(image=img, speed=speed, angle=angle, img_name='IMG/'+bagfile[:len(bagfile)-4]+'_img_'+str(img_count)+'.jpg')
                     is_new_angle = False
                     is_new_img = False
-                    img_count =img_count + 1
+                    is_new_speed = False
+                    img_count = img_count + 1
 
             print(bagfile)
 
@@ -68,8 +77,9 @@ class RosDataWrapper:
 
 if __name__ == '__main__':
 
-    folder = '/home/schuerlars/git/e2e_lane_keeping/velox_data/'
-    output_path = '/home/schuerlars/git/e2e_lane_keeping/velox_data_path/'
+    folder = '/home/elschuer/data/LaneKeepingE2E/train_data/'
+    output_path = '/home/elschuer/data/LaneKeepingE2E/train_images/'
+
     ros_data_handler = RosDataWrapper(input_path=folder , output_path=output_path, show_images=True)
 
     ros_data_handler.read_ros_bag_file()

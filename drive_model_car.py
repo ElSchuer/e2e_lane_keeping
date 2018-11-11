@@ -5,6 +5,7 @@ import scipy.misc
 import rospy
 import tensorflow as tf
 from sensor_msgs.msg import Image
+from std_msgs.msg import Float32
 from messages.msg import CarControlMessage
 from cv_bridge import CvBridge, CvBridgeError
 
@@ -15,10 +16,10 @@ class AutonomousModelCarControl:
 
         self.sess = tf.InteractiveSession()
         saver = tf.train.Saver()
-        saver.restore(self.sess, 'save/velox_model.ckpt')
+        saver.restore(self.sess, './save/car_model.ckpt')
 
 
-        self.steeringPub = rospy.Publisher("/control/steering_predicted", CarControlMessage, queue_size=1)
+        self.steeringPub = rospy.Publisher("/control/steering_angle_predicted", Float32, queue_size=1)
         self.sub = rospy.Subscriber("/camera/image_raw", Image, self.predict_steering_angle)
         self.bridge = CvBridge()
 
@@ -37,8 +38,8 @@ class AutonomousModelCarControl:
 
         steering_angle = steering_angle*self.vehicle_spec.angle_norm
 
-        msg = CarControlMessage()
-        msg.steeringAngle = steering_angle
+        msg = Float32()
+        msg.data = steering_angle
 
         self.steeringPub.publish(msg)
 

@@ -1,7 +1,3 @@
-import cv2
-import numpy as np
-import matplotlib.pyplot as plt
-import data_handler
 import scipy
 import csv
 import cv2
@@ -53,19 +49,22 @@ def random_shades(image):
 def get_image(filename):
     return scipy.misc.imread(filename)
 
-def save_augmented_data(augmented_data, path):
+def save_augmented_data(augmented_data, path, data_desc_file):
 
-    print("Saving Augmented data in " + path)
+    # print("Saving Augmented data in " + path)
 
     if not os.path.exists(path):
         os.makedirs(path)
 
-    with open(path + '/' + 'augmented_log.csv', mode='a+') as new_log_file:
+    if not os.path.exists(path + "IMG"):
+        os.makedirs(path + "IMG")
+
+    with open(path  + data_desc_file, mode='a+') as new_log_file:
         s_count = 0
         for dataset in augmented_data:
             new_img = dataset[0]
             new_angle = dataset[1]
-            new_img_path = path + '/' +  dataset[2]
+            new_img_path = path +  dataset[2]
 
             writer = csv.writer(new_log_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             writer.writerow([new_img_path, '', '', str(new_angle)])
@@ -74,16 +73,14 @@ def save_augmented_data(augmented_data, path):
 
             s_count = s_count + 1
 
-            print("Saved " + str(s_count) + " of " + str(len(augmented_data)))
+            # print("Saved " + str(s_count) + " of " + str(len(augmented_data)))
 
 
 
-def augment_images(data_dir, data_desc_file):
+def augment_images(data_dir, data_desc_file, output_path):
     augmented_data = []
 
-    new_path = data_dir + '/' + 'augmented_data'
-
-    with open(data_dir + '/' + data_desc_file, 'r') as csvFile:
+    with open(data_dir + data_desc_file, 'r') as csvFile:
         reader = csv.reader(csvFile, delimiter=',')
 
         for row in reader:
@@ -111,12 +108,15 @@ def augment_images(data_dir, data_desc_file):
                 shade_img = random_shades(image)
                 augmented_data.append([shade_img, angle, img_name[:len(img_name)-4] + "_shade.jpg"])
 
-                save_augmented_data(augmented_data, new_path)
+                save_augmented_data(augmented_data, output_path, data_desc_file)
 
                 augmented_data = []
 
 
 if __name__ == '__main__':
-    data_path = './data/velox_data_path'
-    data_desc_file = 'augmented_log.csv'
-    augment_images(data_path, data_desc_file)
+    data_path = '/home/elschuer/data/LaneKeepingE2E/train_images/'
+    data_desc_file = 'data_labels.csv'
+
+    output_path = '/home/elschuer/data/LaneKeepingE2E/train_images_augmented/'
+
+    augment_images(data_path, data_desc_file, output_path)

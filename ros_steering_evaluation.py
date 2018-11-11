@@ -2,7 +2,7 @@ import numpy as np
 import rospy
 import cv2
 from sensor_msgs.msg import Image
-from messages.msg import CarControlMessage
+from std_msgs.msg import Float32
 from cv_bridge import CvBridge, CvBridgeError
 import matplotlib.pyplot as plt
 
@@ -18,8 +18,8 @@ class LaneKeepingValidator:
         self.plot_error_values = plot_error_values
         self.show_image = show_image
 
-        self.gt_angle_sub = rospy.Subscriber("/CarUpdate", CarControlMessage, self.gt_angle_callback)
-        self.pred_angle_sub = rospy.Subscriber("/control/steering_predicted", CarControlMessage, self.pred_angle_callback)
+        self.gt_angle_sub = rospy.Subscriber("/ECU/SteeringAngle", Float32, self.gt_angle_callback)
+        self.pred_angle_sub = rospy.Subscriber("/control/steering_angle_predicted", Float32, self.pred_angle_callback)
         self.image_sub = rospy.Subscriber("/camera/image_raw", Image, self.get_image)
         self.bridge = CvBridge()
 
@@ -27,17 +27,17 @@ class LaneKeepingValidator:
         plt.show()
 
     def gt_angle_callback(self, angle_msg):
-        self.gt_angle = angle_msg.steeringAngle
+        self.gt_angle = angle_msg.data
 
     def pred_angle_callback(self, angle_msg):
-        self.pred_angle = angle_msg.steeringAngle
+        self.pred_angle = angle_msg.data
 
     def get_image(self, image_msg):
         try:
             image = np.asarray(self.bridge.imgmsg_to_cv2(image_msg, desired_encoding='passthrough'))
 
             if self.show_image:
-                cv2.imshow('test', image)
+                cv2.imshow('Image', image)
                 cv2.waitKey(1)
 
             self.validate()

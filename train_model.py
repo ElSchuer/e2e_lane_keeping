@@ -30,7 +30,11 @@ class ModelTrainer:
 
         self.data_handler = data_handler
 
-        self.sess = tf.InteractiveSession()
+        config = tf.ConfigProto()
+        config.inter_op_parallelism_threads = 10
+        config.intra_op_parallelism_threads = 10
+
+        self.sess = tf.InteractiveSession(config=config)
 
 
     def train_model(self):
@@ -95,7 +99,7 @@ class ModelTrainer:
         plt.xlabel('Epoch Number')
         plt.ylabel('Validation Error')
         plt.show()
-        plt.savefig('myfig')
+        plt.savefig('validation_error')
 
 
     def val_model(self):
@@ -126,7 +130,7 @@ class ModelTrainer:
 if __name__ == '__main__':
 
     train_simulation = False
-    shutdown_on_finish = True
+    shutdown_on_finish = False
     analyze_data = True
 
     if train_simulation:
@@ -137,10 +141,10 @@ if __name__ == '__main__':
         model_name = 'sim_model.ckpt'
     else:
         vec_spec = data_handler.VehicleSpec(angle_norm=30, image_crop_vert=[220,480])
-        data_path = './data/velox_data_augmented/'
-        desc_file = 'augmented_log.csv'
-        contains_full_path = False
-        model_name = 'velox_model.ckpt'
+        data_path = '/home/elschuer/data/LaneKeepingE2E/train_images_augmented'
+        desc_file = 'data_labels.csv'
+        contains_full_path = True
+        model_name = 'car_model.ckpt'
         convert_image = False
         image_channels = 1
 

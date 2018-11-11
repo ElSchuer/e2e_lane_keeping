@@ -21,6 +21,8 @@ class DataHandler:
         self.convert_image = convert_image
         self.image_channels = image_channels
 
+        print('Reading data from path ' + data_dir)
+
         self.data = self.get_meta_data_from_file(self.data_desc_file)
         shuffle(self.data)
 
@@ -79,7 +81,7 @@ class DataHandler:
         if self.convert_image:
             image = cv2.cvtColor(image, cv2.COLOR_RGB2YUV)
 
-        return (image / 255.0)
+        return (image / 255.0 - 0.5)
 
         return image
 

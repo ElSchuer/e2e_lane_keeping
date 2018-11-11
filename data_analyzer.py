@@ -14,11 +14,11 @@ class DataAnalyzer:
 
 
     def showDataDistribution(self, data):
-        plt.hist(data, bins = 500)
+        plt.hist(data, bins = 300)
         plt.show()
 
     def print_samples_not_equal_zero(self, data):
-        print(str(np.count_nonzero(np.array(data))) + ' of ' + str(len(data)) + ' are not equal zero.')
+        print(str(np.count_nonzero(np.array(data))  * 100 / len(data)) + ' % of the samples are not equal zero.')
 
 
 
