@@ -149,6 +149,7 @@ if __name__ == '__main__':
         image_channels = 1
 
     data_handler = data_handler.DataHandler(data_path, desc_file, vehicle_spec=vec_spec,contains_full_path=contains_full_path, convert_image=convert_image, image_channels=1)
+    data_handler.read_data()
 
     if analyze_data:
         data_analyzer = data_analyzer.DataAnalyzer()

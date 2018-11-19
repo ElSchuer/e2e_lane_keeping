@@ -23,16 +23,17 @@ class DataHandler:
 
         print('Reading data from path ' + data_dir)
 
-        self.data = self.get_meta_data_from_file(self.data_desc_file)
-        shuffle(self.data)
-
-        print("Complete Data : " + str(len(self.data)))
-
         self.train_data = []
         self.val_data = []
 
         self.train_iterations = 0
         self.val_iterations = 0
+
+    def read_data(self):
+        self.data = self.get_meta_data_from_file(self.data_desc_file)
+        shuffle(self.data)
+
+        print("Complete Data : " + str(len(self.data)))
 
 
     def get_data_x(self):
