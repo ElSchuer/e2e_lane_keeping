@@ -1,4 +1,14 @@
-Data augmentation for all images with angle != 0 and image augmentation flip, dark, bright, shade
-82607 of 83767 are not equal zero.
-Train Data Samples : 67013
-Val Data Samples : 16754
+car_model_1
+Mean Error : 2.249869291885223
+Mean Neg Error : 2.4520914191634318
+Mean Pos Error : 1.8735305529953503
+
+car_model_2 (augment only non zero)
+Mean Error : 2.2688558834384414
+Mean Neg Error : 2.368006722642892
+Mean Pos Error : 2.004852882854494
+
+car_model_3
+Mean Error : 2.10129183881608
+Mean Neg Error : 2.1512085128816056
+Mean Pos Error : 1.9286543210018934

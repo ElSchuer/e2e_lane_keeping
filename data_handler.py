@@ -62,6 +62,9 @@ class DataHandler:
 
             for row in reader:
 
+                if len(row) <= 0:
+                    continue
+
                 if self.is_full_file_path:
                     image = self.get_image(row[0])
                 else:
