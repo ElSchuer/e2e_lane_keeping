@@ -29,7 +29,7 @@ class AutonomousModelCarControl:
         except CvBridgeError as e:
             print(e)
 
-        image = scipy.misc.imresize(image[self.vehicle_spec.image_crop_vert[0]:self.vehicle_spec.image_crop_vert[1]],[66, 200])/255.0-0.5
+        image = scipy.misc.imresize(image[self.vehicle_spec.image_crop_vert[0]:self.vehicle_spec.image_crop_vert[1]],[cnn_model.input_height, cnn_model.input_width])/255.0-0.5
         image = image.reshape([np.array(image).shape[0], np.array(image).shape[1], 1])
 
         #Calculate new Steering angle based on image input

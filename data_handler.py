@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 from random import shuffle
 import scipy.misc
+import cnn_model
 
 class VehicleSpec:
 
@@ -80,7 +81,7 @@ class DataHandler:
         return data
 
     def get_image(self, filename):
-        image = scipy.misc.imresize(scipy.misc.imread(filename)[self.vehicle_spec.image_crop_vert[0]:self.vehicle_spec.image_crop_vert[1]], [66, 200])
+        image = scipy.misc.imresize(scipy.misc.imread(filename)[self.vehicle_spec.image_crop_vert[0]:self.vehicle_spec.image_crop_vert[1]], [cnn_model.input_height, cnn_model.input_width])
 
         if self.convert_image:
             image = cv2.cvtColor(image, cv2.COLOR_RGB2YUV)

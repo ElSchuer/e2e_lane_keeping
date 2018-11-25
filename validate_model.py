@@ -6,12 +6,14 @@ import cnn_model
 import scipy.misc
 import data_handler
 import csv
+import time
 
 class ModelValidator:
     def __init__(self, model_file, val_data_path, vec_spec, desc_file = 'data_labels.csv', plot_error_values = True, show_image = True, is_full_file_path=False):
         self.error_values = []
         self.pos_errors = []
         self.neg_errors = []
+        self.times = []
 
         self.val_data_path = val_data_path
         self.desc_file = desc_file
@@ -43,9 +45,11 @@ class ModelValidator:
 
                 gt_angle = float(row[3])
 
+                start_time = time.time()
+
                 image = scipy.misc.imread(imgFile)
                 image_resized = scipy.misc.imresize(image[self.vec_spec.image_crop_vert[0]:self.vec_spec.image_crop_vert[1]],
-                                                    [66, 200]) / 255.0 - 0.5
+                                                    [cnn_model.input_height, cnn_model.input_width]) / 255.0 - 0.5
                 image_resized = image_resized.reshape(
                     [np.array(image_resized).shape[0], np.array(image_resized).shape[1], 1])
 
@@ -53,6 +57,9 @@ class ModelValidator:
                 steering_angle = cnn_model.y.eval(session=self.sess, feed_dict={cnn_model.x: image_resized[None, :, :],
                                                                            cnn_model.keep_prob: 1.0})[0][0]
                 steering_angle = steering_angle * vec_spec.angle_norm
+
+                end_time = time.time()
+                self.times.append(end_time-start_time)
 
                 print("pred_angle = ", steering_angle, " gt_angle = ", gt_angle)
 
@@ -74,6 +81,7 @@ class ModelValidator:
         print("Mean Error : " + str(np.mean(self.error_values)))
         print("Mean Neg Error : " + str(np.mean(self.neg_errors)))
         print("Mean Pos Error : " + str(np.mean(self.pos_errors)))
+        print("Mean PredictionTime : " + str(np.mean(self.times)))
 
     def plot_error(self, steering_angle, gt_angle):
         error = np.sqrt(np.power(steering_angle - gt_angle, 2))
@@ -118,11 +126,11 @@ class ModelValidator:
         cv2.waitKey(1)
 
 if __name__ == '__main__':
-    data_dir = "C:/Users/lschuermann/Documents/data/images_val"
+    data_dir = "/home/elschuer/data/LaneKeepingE2E/eval_images/"
     desc_file = 'data_labels.csv'
     vec_spec = data_handler.VehicleSpec(angle_norm=30, image_crop_vert=[220, 480])
 
-    model_validator = ModelValidator(model_file='./save/car_model_3.ckpt', vec_spec=vec_spec,
-                                     val_data_path=data_dir, desc_file=desc_file, show_image=True, plot_error_values=False)
+    model_validator = ModelValidator(model_file='./save/car_model.ckpt', vec_spec=vec_spec,
+                                     val_data_path=data_dir, desc_file=desc_file, show_image=False, plot_error_values=False)
 
     model_validator.validate_model()
