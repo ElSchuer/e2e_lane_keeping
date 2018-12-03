@@ -7,6 +7,7 @@ import tensorflow as tf
 from sensor_msgs.msg import Image
 from std_msgs.msg import Float32
 from cv_bridge import CvBridge, CvBridgeError
+import time
 
 class AutonomousModelCarControl:
 
@@ -19,17 +20,19 @@ class AutonomousModelCarControl:
 
 
         self.steeringPub = rospy.Publisher("/vehicle_control/steering_angle", Float32, queue_size=1)
-        self.sub = rospy.Subscriber("/camera/image_raw", Image, self.predict_steering_angle)
+        self.sub = rospy.Subscriber("/camera/image_raw", Image, self.predict_steering_angle, queue_size=1, buff_size=2**24)
         self.bridge = CvBridge()
 
     def predict_steering_angle(self, image_msg):
+
+        start_time = time.time()
 
         try:
             image = np.asarray(self.bridge.imgmsg_to_cv2(image_msg, desired_encoding='passthrough'))
         except CvBridgeError as e:
             print(e)
 
-        image = scipy.misc.imresize(image[self.vehicle_spec.image_crop_vert[0]:self.vehicle_spec.image_crop_vert[1]],[cnn_model.input_height, cnn_model.input_width])/255.0-0.5
+        image = scipy.misc.imresize(image[self.vehicle_spec.image_crop_vert[0]:self.vehicle_spec.image_crop_vert[1]],[66, 200])/255.0-0.5
         image = image.reshape([np.array(image).shape[0], np.array(image).shape[1], 1])
 
         #Calculate new Steering angle based on image input
@@ -40,7 +43,10 @@ class AutonomousModelCarControl:
         msg = Float32()
         msg.data = steering_angle
 
-        self.steeringPub.publish(msg)
+        end_time = time.time()
+        #print("Prediction duration : ", end_time - start_time)
+
+		self.steeringPub.publish(msg)
 
 
 
