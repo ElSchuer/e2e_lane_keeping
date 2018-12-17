@@ -11,7 +11,7 @@ The udacity autonomous driving simulator (https://github.com/udacity/self-drivin
 ## Dependencies
 
 * python version > 3
-* tensorflow
+* keras
 * numpy
 * cv2
 * scipy
