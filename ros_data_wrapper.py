@@ -35,16 +35,14 @@ class RosDataWrapper:
 
     def read_ros_bag_file(self):
         bagfiles = glob.glob(self.folder + '/*.bag')
-        print(len(bagfiles))
         bagfiles.extend(glob.glob(self.folder + '/**/*.bag'))
-        print(len(bagfiles))
         bagfiles.extend(glob.glob(self.folder + '/**/**/*.bag'))
-        print(len(bagfiles))
+
+        img_count = 0
 
         for bagfile in bagfiles:
             bag = rosbag.Bag(bagfile,'r')
 
-            img_count = 0
             is_new_img = False
             is_new_angle = False
             is_new_speed = False
@@ -87,8 +85,8 @@ class RosDataWrapper:
 
 if __name__ == '__main__':
 
-    folder = '/home/elschuer/data/LaneKeepingE2E/data_val/'
-    output_path = '/home/elschuer/data/LaneKeepingE2E/images_val/'
+    folder = '/home/elschuer/data/LaneKeepingE2E/data_train/'
+    output_path = '/home/elschuer/data/LaneKeepingE2E/images_train/'
 
     ros_data_handler = RosDataWrapper(input_path=folder , output_path=output_path, show_images=True)
 
