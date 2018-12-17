@@ -7,6 +7,7 @@ from cv_bridge import CvBridge
 from messages.msg import CarControlMessage
 from std_msgs.msg import Float32
 import scipy.misc
+import glob
 
 class RosDataWrapper:
 
@@ -33,8 +34,15 @@ class RosDataWrapper:
         scipy.misc.imsave(output_path + img_name, image)
 
     def read_ros_bag_file(self):
-        for bagfile in os.listdir(self.folder):
-            bag = rosbag.Bag(self.folder + bagfile,'r')
+        bagfiles = glob.glob(self.folder + '/*.bag')
+        print(len(bagfiles))
+        bagfiles.extend(glob.glob(self.folder + '/**/*.bag'))
+        print(len(bagfiles))
+        bagfiles.extend(glob.glob(self.folder + '/**/**/*.bag'))
+        print(len(bagfiles))
+
+        for bagfile in bagfiles:
+            bag = rosbag.Bag(bagfile,'r')
 
             img_count = 0
             is_new_img = False
@@ -55,30 +63,32 @@ class RosDataWrapper:
                     angle = msg.steeringAngle
                     speed = msg.speed
                     is_new_angle = True
+                    is_new_speed = True
 
-                if topic == '/ECU/SteeringAngle':
+                if topic == '/ECU/SteeringAngle' or topic == '/vehicle_info/steering_angle':
                     angle = msg.data
                     is_new_angle = True
 
-                if topic == '/ECU/Speed':
+                if topic == '/ECU/Speed' or topic == '/vehicle_info/speed':
                     speed = msg.data
                     is_new_speed = True
 
                 if is_new_angle and is_new_img and is_new_speed:
-                    self.save_data(image=img, speed=speed, angle=angle, img_name='IMG/'+bagfile[:len(bagfile)-4]+'_img_'+str(img_count)+'.jpg')
+                    self.save_data(image=img, speed=speed, angle=angle, img_name='IMG/'+'image_'+str(img_count)+'.jpg')
                     is_new_angle = False
                     is_new_img = False
                     is_new_speed = False
                     img_count = img_count + 1
 
+            print("Image count : ",img_count)
             print(bagfile)
 
 
 
 if __name__ == '__main__':
 
-    folder = '/home/elschuer/data/LaneKeepingE2E/train_data/'
-    output_path = '/home/elschuer/data/LaneKeepingE2E/train_images/'
+    folder = '/home/elschuer/data/LaneKeepingE2E/data_val/'
+    output_path = '/home/elschuer/data/LaneKeepingE2E/images_val/'
 
     ros_data_handler = RosDataWrapper(input_path=folder , output_path=output_path, show_images=True)
 
