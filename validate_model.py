@@ -1,7 +1,8 @@
+from keras.models import load_model
+import seaborn as sns
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
-import tensorflow as tf
 import cnn_model
 import scipy.misc
 import data_handler
@@ -24,9 +25,7 @@ class ModelValidator:
         self.plot_error_values = plot_error_values
         self.show_image = show_image
 
-        self.sess = tf.InteractiveSession()
-        saver = tf.train.Saver()
-        saver.restore(self.sess, model_file)
+        self.model = load_model(model_file)
 
         self.vec_spec = data_handler.VehicleSpec(angle_norm=30, image_crop_vert=[220, 480])
 
@@ -49,13 +48,12 @@ class ModelValidator:
 
                 image = scipy.misc.imread(imgFile)
                 image_resized = scipy.misc.imresize(image[self.vec_spec.image_crop_vert[0]:self.vec_spec.image_crop_vert[1]],
-                                                    [cnn_model.input_height, cnn_model.input_width]) / 255.0 - 0.5
-                image_resized = image_resized.reshape(
-                    [np.array(image_resized).shape[0], np.array(image_resized).shape[1], 1])
+                                                    [cnn_model.input_height, cnn_model.input_width])
+                image_resized = np.expand_dims(np.array(image_resized), axis=2)
+                image_resized = image_resized[None, :, :, :]
 
                 # Calculate new Steering angle based on image input
-                steering_angle = cnn_model.y.eval(session=self.sess, feed_dict={cnn_model.x: image_resized[None, :, :],
-                                                                           cnn_model.keep_prob: 1.0})[0][0]
+                steering_angle = float(self.model.predict(image_resized, batch_size=1))
                 steering_angle = steering_angle * vec_spec.angle_norm
 
                 end_time = time.time()
@@ -126,11 +124,11 @@ class ModelValidator:
         cv2.waitKey(1)
 
 if __name__ == '__main__':
-    data_dir = "/home/elschuer/data/LaneKeepingE2E/eval_images/"
+    data_dir = "/home/elschuer/data/LaneKeepingE2E/images_val"
     desc_file = 'data_labels.csv'
     vec_spec = data_handler.VehicleSpec(angle_norm=30, image_crop_vert=[220, 480])
 
-    model_validator = ModelValidator(model_file='./save/car_model.ckpt', vec_spec=vec_spec,
-                                     val_data_path=data_dir, desc_file=desc_file, show_image=False, plot_error_values=False)
+    model_validator = ModelValidator(model_file='./save/nvidia_model.h5', vec_spec=vec_spec,
+                                     val_data_path=data_dir, desc_file=desc_file, show_image=True, plot_error_values=False)
 
     model_validator.validate_model()
