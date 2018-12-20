@@ -19,3 +19,8 @@ Mean Neg Error : 2.1564087578351607
 Mean Pos Error : 2.0650367041047195
 Mean PredictionTime : 0.004451663210121218
 
+18.12.2018 nvidia model epochs 12
+Mean Error : 2.3827090789206355
+Mean Neg Error : 2.1779957713356306
+Mean Pos Error : 2.4708947743544676
+Mean PredictionTime : 0.0011740998354505248

@@ -10,10 +10,7 @@ import csv
 import time
 
 class ModelValidator:
-    def __init__(self, model_file, val_data_path, vec_spec, desc_file = 'data_labels.csv', plot_error_values = True, show_image = True, is_full_file_path=False):
-        self.error_values = []
-        self.pos_errors = []
-        self.neg_errors = []
+    def __init__(self, model_file, val_data_path, vec_spec, desc_file = 'data_labels.csv', show_plot = True, show_image = True, is_full_file_path=False):
         self.times = []
 
         self.val_data_path = val_data_path
@@ -22,19 +19,20 @@ class ModelValidator:
 
         self.is_full_file_path = is_full_file_path
 
-        self.plot_error_values = plot_error_values
+        self.show_plot = show_plot
         self.show_image = show_image
 
         self.model = load_model(model_file)
 
         self.vec_spec = data_handler.VehicleSpec(angle_norm=30, image_crop_vert=[220, 480])
 
-        plt.ion()
-        plt.show()
-
     def validate_model(self):
         with open(self.val_data_path + '/' + self.desc_file, 'r') as csvFile:
             reader = csv.reader(csvFile, delimiter=',')
+
+            pred_angles = []
+            gt_angles = []
+
             for row in reader:
 
                 if self.is_full_file_path:
@@ -59,46 +57,37 @@ class ModelValidator:
                 end_time = time.time()
                 self.times.append(end_time-start_time)
 
+                pred_angles.append(steering_angle)
+                gt_angles.append(gt_angle)
+
                 print("pred_angle = ", steering_angle, " gt_angle = ", gt_angle)
 
                 if self.show_image:
                     self.draw_image(image, steering_angle, gt_angle)
 
-                if self.plot_error_values:
-                    self.plot_error(steering_angle, gt_angle)
+            if self.show_plot:
+                self.plot_error(pred_angles, gt_angles)
 
-                error = np.sqrt(np.power(steering_angle - gt_angle, 2))
+                #error = np.sqrt(np.power(steering_angle - gt_angle, 2))
 
-                if np.sign(gt_angle) < 0:
-                    self.neg_errors.append(error)
-                elif np.sign(gt_angle) > 0:
-                    self.pos_errors.append(error)
-
-                self.error_values.append(error)
-
-        print("Mean Error : " + str(np.mean(self.error_values)))
-        print("Mean Neg Error : " + str(np.mean(self.neg_errors)))
-        print("Mean Pos Error : " + str(np.mean(self.pos_errors)))
+        print("Mean Error : " + str(np.mean(np.sqrt(np.power(np.array(pred_angles) - np.array(gt_angles), 2)))))
         print("Mean PredictionTime : " + str(np.mean(self.times)))
 
-    def plot_error(self, steering_angle, gt_angle):
-        error = np.sqrt(np.power(steering_angle - gt_angle, 2))
+    def plot_error(self, pred_angles, gt_angles):
 
-        if np.sign(gt_angle) < 0:
-            self.neg_errors.append(error)
-        elif np.sign(gt_angle) > 0:
-            self.pos_errors.append(error)
+        error_values = np.sqrt(np.power(np.array(pred_angles) - np.array(gt_angles), 2))
 
-        self.error_values.append(error)
+        x_values = np.arange(0, len(error_values))
+        plt.plot(x_values, error_values, 'C1')
+        plt.xlabel('Sample Number')
+        plt.ylabel('Steering Angle MSE')
+        plt.show()
 
-        # Plotting the error values
-        if self.plot_error_values:
-            x_values = np.arange(0, len(self.error_values))
-            plt.plot(x_values, self.error_values, 'C1')
-            plt.xlabel('Sample Number')
-            plt.ylabel('Steering Angle MSE')
-            plt.draw()
-            plt.pause(00000.1)
+        plt.plot(x_values, pred_angles)
+        plt.plot(x_values, gt_angles)
+        plt.xlabel('Sample Number')
+        plt.ylabel('Steering Angle')
+        plt.show()
 
     def draw_image(self, image, steering_angle, gt_angle):
         img_height = image.shape[0]
@@ -123,12 +112,14 @@ class ModelValidator:
         cv2.imshow("Image", image)
         cv2.waitKey(1)
 
+        time.sleep(0.01)
+
 if __name__ == '__main__':
-    data_dir = "/home/elschuer/data/LaneKeepingE2E/images_val"
+    data_dir = 'C:/Users/lschuermann/Documents/data/images_val'
     desc_file = 'data_labels.csv'
     vec_spec = data_handler.VehicleSpec(angle_norm=30, image_crop_vert=[220, 480])
 
     model_validator = ModelValidator(model_file='./save/nvidia_model.h5', vec_spec=vec_spec,
-                                     val_data_path=data_dir, desc_file=desc_file, show_image=True, plot_error_values=False)
+                                     val_data_path=data_dir, desc_file=desc_file, show_image=True, show_plot=True)
 
     model_validator.validate_model()
