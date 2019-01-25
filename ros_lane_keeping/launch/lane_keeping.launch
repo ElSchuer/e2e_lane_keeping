@@ -1,0 +1,8 @@
+<launch>
+
+  <arg name="name" default="lane_keeping" />
+
+  <!-- Lane Keeping script -->
+  <node pkg="lane_keeping" type="drive_model_car.py" name="$(arg name)" args="/home/odroid/ros_workspace/src/lane_keeping/save/nvidia_model.h5" output="screen" />
+
+</launch>

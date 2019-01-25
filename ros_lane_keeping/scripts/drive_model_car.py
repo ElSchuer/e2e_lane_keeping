@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import numpy as np
 import scipy.misc
 import rospy
@@ -7,18 +9,21 @@ from std_msgs.msg import Float32
 from cv_bridge import CvBridge, CvBridgeError
 import time
 import vehicle_spec
+import sys
 
 class AutonomousModelCarControl:
 
-    def __init__(self, vehicle_spec):
+    def __init__(self, vehicle_spec, model_weights_file):
         self.vehicle_spec = vehicle_spec
 
         self.input_width = 200
         self.input_height = 66
 
         self.model = self.get_model()
-        self.model.load_weights('./save/nvidia_model.h5')
+        self.model.load_weights(model_weights_file)
+	self.model._make_predict_function()
         self.model.summary()
+	self.graph = tf.get_default_graph()
 
         self.steeringPub = rospy.Publisher("/vehicle_control/steering_angle", Float32, queue_size=1)
         self.sub = rospy.Subscriber("/camera/image_raw", Image, self.predict_steering_angle, queue_size=1, buff_size=2**24)
@@ -58,8 +63,6 @@ class AutonomousModelCarControl:
 
     def predict_steering_angle(self, image_msg):
 
-        start_time = time.time()
-
         try:
             image = np.asarray(self.bridge.imgmsg_to_cv2(image_msg, desired_encoding='passthrough'))
         except CvBridgeError as e:
@@ -70,7 +73,9 @@ class AutonomousModelCarControl:
         image_resized = image_resized[None, :, :, :]
 
         # Calculate new Steering angle based on image input
-        steering_angle = float(self.model.predict(image_resized, batch_size=1))
+	with self.graph.as_default():
+        	steering_angle = float(self.model.predict(image_resized, batch_size=1))
+
         steering_angle = steering_angle * vec_spec.angle_norm
 
         msg = Float32()
@@ -81,9 +86,17 @@ class AutonomousModelCarControl:
 
 
 if __name__ == '__main__':
+    try:
+        model_path = sys.argv[1]
+        print('Using model weights from file:', model_path)
+    except Exception:
+        print('Parameter missing')
+        print('Usage: python drive_model_car.py <path_to_model_wehigths_file>')
+        exit(-1)
+    
     vec_spec = vehicle_spec.VehicleSpec(angle_norm=30, image_crop_vert=[220, 480])
 
-    car_control = AutonomousModelCarControl(vehicle_spec = vec_spec)
+    car_control = AutonomousModelCarControl(vehicle_spec = vec_spec, model_weights_file=model_path)
 
     rospy.init_node('drive_model_car', anonymous=True)
     try:
