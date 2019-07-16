@@ -8,6 +8,7 @@ from messages.msg import CarControlMessage
 from std_msgs.msg import Float32
 import scipy.misc
 import glob
+import config_import
 
 class RosDataWrapper:
 
@@ -31,7 +32,7 @@ class RosDataWrapper:
             writer = csv.writer(new_log_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             writer.writerow([img_name, '', '', str(angle), str(speed)])
 
-        scipy.misc.imsave(output_path + img_name, image)
+        scipy.misc.imsave(self.output_path + img_name, image)
 
     def read_ros_bag_file(self):
         bagfiles = glob.glob(self.folder + '/*.bag')
@@ -84,10 +85,10 @@ class RosDataWrapper:
 
 
 if __name__ == '__main__':
+    config = config_import.load_config('config.json')
 
-    folder = '/home/elschuer/data/LaneKeepingE2E/data_train/'
-    output_path = '/home/elschuer/data/LaneKeepingE2E/images_train/'
-
-    ros_data_handler = RosDataWrapper(input_path=folder , output_path=output_path, show_images=True)
+    #ros_data_handler = RosDataWrapper(input_path=config['data']['ros_data_path'] , output_path=config['data']['raw_data_path'], show_images=True)
+    ros_data_handler = RosDataWrapper(input_path=config['data']['ros_val_data_path'],
+                                      output_path=config['data']['val_data_path'], show_images=True)
 
     ros_data_handler.read_ros_bag_file()

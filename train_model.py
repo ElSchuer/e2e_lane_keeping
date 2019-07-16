@@ -3,6 +3,7 @@ from keras.optimizers import Adam
 import cnn_model
 import data_handler
 import data_analyzer
+import vehicle_spec
 import os
 import time
 import matplotlib.pyplot as plt
@@ -54,19 +55,19 @@ if __name__ == '__main__':
 
     train_simulation = False
     shutdown_on_finish = False
-    analyze_data = True
+    analyze_data = False
 
     if train_simulation:
-        vec_spec = data_handler.VehicleSpec(angle_norm=1, image_crop_vert=[25,135])
+        vec_spec = vehicle_spec.VehicleSpec(angle_norm=1, image_crop_vert=[25,135])
         data_path = './data/augmented_data'
         desc_file = 'augmented_log.csv'
         contains_full_path = True
         model_name = 'sim_model.ckpt'
     else:
-        vec_spec = data_handler.VehicleSpec(angle_norm=30, image_crop_vert=[220,480])
-        data_path = '/home/elschuer/data/LaneKeepingE2E/images_train_augmented'
+        vec_spec = vehicle_spec.VehicleSpec(angle_norm=30, image_crop_vert=[220,480])
+        data_path = '/home/elschuer/data/LaneKeepingE2E/images_train_augmented/'
         desc_file = 'data_labels.csv'
-        contains_full_path = False
+        contains_full_path = True
         model_name = 'nvidia_model.h5'
         convert_image = False
         image_channels = 1
@@ -79,7 +80,7 @@ if __name__ == '__main__':
         data_analyzer.showDataDistribution(data_handler.y_data)
         data_analyzer.print_samples_not_equal_zero(data_handler.y_data)
 
-    model_trainer = ModelTrainer(epochs=12, data_handler=data_handler, model_name=model_name)
+    model_trainer = ModelTrainer(epochs=10, data_handler=data_handler, model_name=model_name)
     model_trainer.train_model()
 
     if shutdown_on_finish:

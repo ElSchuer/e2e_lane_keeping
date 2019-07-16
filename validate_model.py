@@ -6,8 +6,10 @@ import matplotlib.pyplot as plt
 import cnn_model
 import scipy.misc
 import data_handler
+import vehicle_spec
 import csv
 import time
+import config_import
 
 class ModelValidator:
     def __init__(self, model_file, val_data_path, vec_spec, desc_file = 'data_labels.csv', show_plot = True, show_image = True, is_full_file_path=False):
@@ -24,10 +26,10 @@ class ModelValidator:
 
         self.model = load_model(model_file)
 
-        self.vec_spec = data_handler.VehicleSpec(angle_norm=30, image_crop_vert=[220, 480])
+        self.vec_spec = vehicle_spec.VehicleSpec(angle_norm=30, image_crop_vert=[220, 480])
 
     def validate_model(self):
-        with open(self.val_data_path + '/' + self.desc_file, 'r') as csvFile:
+        with open(self.val_data_path + self.desc_file, 'r') as csvFile:
             reader = csv.reader(csvFile, delimiter=',')
 
             pred_angles = []
@@ -38,7 +40,7 @@ class ModelValidator:
                 if self.is_full_file_path:
                     imgFile = row[0]
                 else:
-                    imgFile = data_dir + "/" + row[0]
+                    imgFile = self.val_data_path + row[0]
 
                 gt_angle = float(row[3])
 
@@ -109,17 +111,16 @@ class ModelValidator:
         cv2.line(image, angle_line_2, angle_line_1, (0, 0, 255), 2)
         cv2.line(image, gt_line_2, gt_line_1, (0, 255, 0), 2)
 
-        cv2.imshow("Image", image)
-        cv2.waitKey(1)
+        #cv2.imshow("Image", image)
+        #cv2.waitKey(1)
 
         time.sleep(0.01)
 
 if __name__ == '__main__':
-    data_dir = 'C:/Users/lschuermann/Documents/data/images_val'
-    desc_file = 'data_labels.csv'
-    vec_spec = data_handler.VehicleSpec(angle_norm=30, image_crop_vert=[220, 480])
+    config = config_import.load_config('config.json')
+    vec_spec = vehicle_spec.VehicleSpec(angle_norm=30, image_crop_vert=[220, 480])
 
     model_validator = ModelValidator(model_file='./save/nvidia_model.h5', vec_spec=vec_spec,
-                                     val_data_path=data_dir, desc_file=desc_file, show_image=True, show_plot=True)
+                                     val_data_path=config['data']['val_data_path'], desc_file=config['data']['data_desc_file'], show_image=True, show_plot=True)
 
     model_validator.validate_model()

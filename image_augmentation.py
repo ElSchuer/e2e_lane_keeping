@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 import scipy.misc
 import os
+import config_import
 
 def flip_horizontal(image, angle):
     return cv2.flip(image, flipCode=1), -angle
@@ -92,12 +93,12 @@ def augment_images(data_dir, data_desc_file, output_path):
             angle = float(row[3])
             augmented_data.append([image, angle, img_name])
 
-            if angle != 0:
+            if angle != 300:
                 # flip image horizontal
                 flip_img, flip_angle = flip_horizontal(image, angle)
                 augmented_data.append([flip_img, flip_angle, img_name[:len(img_name)-4] + "_flip.jpg"])
 
-                # manipulate brightness
+                # manipulate brigtimehtness
                 dark_img = manipulate_brightness(image, min_rand_val=0.2, max_rand_val=0.8)
                 augmented_data.append([dark_img, angle, img_name[:len(img_name)-4] + "_dark.jpg"])
 
@@ -114,9 +115,6 @@ def augment_images(data_dir, data_desc_file, output_path):
 
 
 if __name__ == '__main__':
-    data_path = '/home/elschuer/data/LaneKeepingE2E/train_images/'
-    data_desc_file = 'data_labels.csv'
+    config = config_import.load_config('config.json')
 
-    output_path = '/home/elschuer/data/LaneKeepingE2E/train_images_augmented/'
-
-    augment_images(data_path, data_desc_file, output_path)
+    augment_images(config['data']['raw_data_path'], config['data']['data_desc_file'], config['data']['augmented_data_path'])

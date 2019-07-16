@@ -24,3 +24,7 @@ Mean Error : 2.3827090789206355
 Mean Neg Error : 2.1779957713356306
 Mean Pos Error : 2.4708947743544676
 Mean PredictionTime : 0.0011740998354505248
+
+nvidia model all data 10 epochs
+Mean Error : 2.367821914203387
+Mean PredictionTime : 0.007772934214696302
